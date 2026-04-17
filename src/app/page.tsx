@@ -9,32 +9,25 @@ import type {
 
 function Section({ title, children }: { title: string; children: React.ReactNode }) {
   return (
-    <section className="rounded-lg border border-zinc-200 bg-white p-6 dark:border-zinc-800 dark:bg-zinc-900">
-      <h2 className="text-sm font-semibold uppercase tracking-wider text-zinc-500 dark:text-zinc-400">
-        {title}
-      </h2>
-      <div className="mt-3">{children}</div>
+    <section className="section">
+      <h2 className="section-title">{title}</h2>
+      <div className="section-body">{children}</div>
     </section>
   );
 }
 
 function HtmlContent({ html }: { html: string }) {
   return (
-    <div
-      className="prose prose-sm dark:prose-invert max-w-none"
-      dangerouslySetInnerHTML={{ __html: html }}
-    />
+    <div className="rich-html" dangerouslySetInnerHTML={{ __html: html }} />
   );
 }
 
 function QAItem({ qa, overrideAnswer }: { qa: DWQuestionAnswer; overrideAnswer?: string }) {
   if (!qa.question) return null;
   return (
-    <details className="border-b border-zinc-100 py-3 last:border-0 dark:border-zinc-800">
-      <summary className="cursor-pointer font-medium text-zinc-900 dark:text-zinc-50">
-        {qa.question}
-      </summary>
-      <div className="mt-2 text-sm text-zinc-600 dark:text-zinc-400">
+    <details className="qa-item">
+      <summary>{qa.question}</summary>
+      <div className="qa-answer">
         {overrideAnswer ? (
           <p>{overrideAnswer}</p>
         ) : qa.answer ? (
@@ -48,9 +41,9 @@ function QAItem({ qa, overrideAnswer }: { qa: DWQuestionAnswer; overrideAnswer?:
 function DeadlineRow({ label, date, time }: { label: string; date: string | null; time?: string | null }) {
   if (!date) return null;
   return (
-    <div className="flex justify-between py-1">
-      <span className="text-zinc-600 dark:text-zinc-400">{label}</span>
-      <span className="font-medium text-zinc-900 dark:text-zinc-50">
+    <div className="deadline-row">
+      <span className="deadline-label">{label}</span>
+      <span className="deadline-value">
         {date}{time ? ` at ${time}` : ""}
       </span>
     </div>
@@ -60,58 +53,52 @@ function DeadlineRow({ label, date, time }: { label: string; date: string | null
 function VotingSection({ election }: { election: DWElection }) {
   const { voting } = election;
   return (
-    <div className="space-y-4">
-      <div className="flex flex-wrap gap-2">
+    <div className="stack">
+      <div className="pill-group">
         {voting.inPersonVotingAvailable && (
-          <span className="rounded-full bg-green-100 px-3 py-1 text-xs font-medium text-green-800 dark:bg-green-900 dark:text-green-200">
-            In-Person Voting Available
-          </span>
+          <span className="pill pill-success">In-Person Voting Available</span>
         )}
         {voting.mailBallotsSentAutomatically && (
-          <span className="rounded-full bg-blue-100 px-3 py-1 text-xs font-medium text-blue-800 dark:bg-blue-900 dark:text-blue-200">
-            Mail Ballots Sent Automatically
-          </span>
+          <span className="pill pill-info">Mail Ballots Sent Automatically</span>
         )}
       </div>
 
-      {/* Early Voting */}
       {voting.early.startDate && (
         <div>
-          <h4 className="text-sm font-semibold text-zinc-700 dark:text-zinc-300">Early Voting</h4>
-          <div className="mt-1 text-sm">
+          <h4 className="subheading">Early Voting</h4>
+          <div className="small-text">
             <DeadlineRow label="Start" date={voting.early.startDate} />
             <DeadlineRow label="End" date={voting.early.endDate} />
             {voting.early.url && (
-              <a href={voting.early.url} target="_blank" rel="noopener noreferrer"
-                className="text-blue-600 underline text-xs dark:text-blue-400">Find early voting locations</a>
+              <a href={voting.early.url} target="_blank" rel="noopener noreferrer" className="link-small">
+                Find early voting locations
+              </a>
             )}
           </div>
         </div>
       )}
 
-      {/* Vote by Mail */}
       <div>
-        <h4 className="text-sm font-semibold text-zinc-700 dark:text-zinc-300">Vote by Mail</h4>
-        <div className="mt-1 text-sm">
+        <h4 className="subheading">Vote by Mail</h4>
+        <div className="small-text">
           <DeadlineRow label="Return in person by" date={voting.byMail.deadline.returnInPerson.date} time={voting.byMail.deadline.returnInPerson.timestamp} />
           <DeadlineRow label="Return by mail by" date={voting.byMail.deadline.returnByMail.date} time={voting.byMail.deadline.returnByMail.timestamp} />
           <DeadlineRow label="Ballot request by" date={voting.byMail.deadline.ballotRequest.date} />
           {voting.byMail.deadline.postmarkedOrReceived && (
-            <div className="flex justify-between py-1">
-              <span className="text-zinc-600 dark:text-zinc-400">Must be</span>
-              <span className="font-medium text-zinc-900 dark:text-zinc-50 capitalize">{voting.byMail.deadline.postmarkedOrReceived}</span>
+            <div className="deadline-row">
+              <span className="deadline-label">Must be</span>
+              <span className="deadline-value capitalize">{voting.byMail.deadline.postmarkedOrReceived}</span>
             </div>
           )}
         </div>
       </div>
 
-      {/* In Person */}
       {voting.inPerson.idInstructions && (
-        <details className="text-sm">
-          <summary className="cursor-pointer font-semibold text-zinc-700 dark:text-zinc-300">
+        <details className="small-text">
+          <summary className="subheading" style={{ cursor: "pointer" }}>
             In-Person ID Requirements
           </summary>
-          <div className="mt-2 text-zinc-600 dark:text-zinc-400">
+          <div className="qa-answer">
             <HtmlContent html={voting.inPerson.idInstructions} />
           </div>
         </details>
@@ -123,71 +110,66 @@ function VotingSection({ election }: { election: DWElection }) {
 function RegistrationSection({ election }: { election: DWElection }) {
   const { registration } = election;
   return (
-    <div className="space-y-2 text-sm">
+    <div className="stack-sm">
       <DeadlineRow label="In-person deadline" date={registration.inPerson.deadline.date} />
       {registration.inPerson.atPollingPlaceOnElectionDay && (
-        <p className="text-green-700 dark:text-green-400 text-xs font-medium">Same-day registration at polling place available</p>
+        <p className="same-day-notice">Same-day registration at polling place available</p>
       )}
       <DeadlineRow label="Online deadline" date={registration.online.deadline.date} />
       {registration.online.url && (
-        <a href={registration.online.url} target="_blank" rel="noopener noreferrer"
-          className="text-blue-600 underline text-xs dark:text-blue-400">Register online</a>
+        <a href={registration.online.url} target="_blank" rel="noopener noreferrer" className="link-small">
+          Register online
+        </a>
       )}
       <DeadlineRow label="By mail deadline" date={registration.byMail.deadline.date} />
       {registration.byMail.deadline.postmarkedOrReceived && (
-        <p className="text-xs text-zinc-500">Must be {registration.byMail.deadline.postmarkedOrReceived}</p>
+        <p className="subtle-text">Must be {registration.byMail.deadline.postmarkedOrReceived}</p>
       )}
     </div>
   );
 }
 
 function BallotMeasuresSection({ measures }: { measures: DWElection["ballotMeasures"] }) {
-  if (!measures || measures.length === 0) return <p className="text-zinc-500 text-sm">No ballot measures for this election.</p>;
+  if (!measures || measures.length === 0) return <p className="empty-text">No ballot measures for this election.</p>;
   return (
-    <div className="divide-y divide-zinc-100 dark:divide-zinc-800">
+    <div className="divided-list">
       {measures.map((m) => (
-        <details key={m.id} className="py-3 first:pt-0 last:pb-0">
-          <summary className="cursor-pointer">
-            <span className="font-medium text-zinc-900 dark:text-zinc-50">
+        <details key={m.id} className="ballot-measure">
+          <summary>
+            <span className="ballot-measure-name">
               {m.streamlinedName || m.id}
             </span>
-            {m.type && (
-              <span className="ml-2 rounded bg-zinc-100 px-2 py-0.5 text-xs text-zinc-600 dark:bg-zinc-800 dark:text-zinc-400">
-                {m.type}
-              </span>
-            )}
-            {m.status && (
-              <span className="ml-2 rounded bg-zinc-100 px-2 py-0.5 text-xs text-zinc-600 dark:bg-zinc-800 dark:text-zinc-400">
-                {m.status}
-              </span>
-            )}
+            {m.type && <span className="tag">{m.type}</span>}
+            {m.status && <span className="tag">{m.status}</span>}
           </summary>
-          <div className="mt-2 space-y-2 pl-4 text-sm text-zinc-600 dark:text-zinc-400">
+          <div className="ballot-measure-body">
             {m.topicAreas?.length > 0 && (
-              <div className="flex gap-1 flex-wrap">
+              <div className="topic-tags">
                 {m.topicAreas.map((t) => (
-                  <span key={t} className="rounded-full bg-purple-100 px-2 py-0.5 text-xs text-purple-800 dark:bg-purple-900 dark:text-purple-200">
-                    {t}
-                  </span>
+                  <span key={t} className="pill pill-tag">{t}</span>
                 ))}
               </div>
             )}
             {m.summary && (
               <div>
-                <span className="font-medium text-zinc-700 dark:text-zinc-300">Summary: </span>
+                <strong>Summary: </strong>
                 <HtmlContent html={m.summary} />
               </div>
             )}
             {m.yesVote && (
               <div>
-                <span className="font-medium text-zinc-700 dark:text-zinc-300">A &quot;Yes&quot; vote means: </span>
+                <strong>A &quot;Yes&quot; vote means: </strong>
                 <HtmlContent html={m.yesVote} />
               </div>
             )}
             {m.ballotQuestion && (
-              <details className="mt-1">
-                <summary className="cursor-pointer text-xs font-medium text-zinc-500">Full ballot question</summary>
-                <div className="mt-1"><HtmlContent html={m.ballotQuestion} /></div>
+              <details>
+                <summary className="subtle-text" style={{ cursor: "pointer", fontWeight: 500 }}>
+                  Full ballot question
+                </summary>
+                <div style={{ marginTop: "0.25rem" }}>
+                  <HtmlContent html={m.ballotQuestion} />
+                </div>
               </details>
             )}
           </div>
@@ -198,30 +180,27 @@ function BallotMeasuresSection({ measures }: { measures: DWElection["ballotMeasu
 }
 
 function ContestsSection({ contests }: { contests: DWElection["contests"] }) {
-  if (!contests || contests.length === 0) return <p className="text-zinc-500 text-sm">No contests for this election.</p>;
+  if (!contests || contests.length === 0) return <p className="empty-text">No contests for this election.</p>;
   return (
-    <div className="divide-y divide-zinc-100 dark:divide-zinc-800">
+    <div className="divided-list">
       {contests.map((c) => (
-        <div key={c.id} className="py-3 first:pt-0 last:pb-0">
-          <div className="flex items-baseline gap-2">
-            <span className="font-medium text-zinc-900 dark:text-zinc-50">{c.name}</span>
-            {c.branch && (
-              <span className="rounded bg-zinc-100 px-2 py-0.5 text-xs text-zinc-600 capitalize dark:bg-zinc-800 dark:text-zinc-400">
-                {c.branch}
-              </span>
-            )}
+        <div key={c.id} className="contest-row">
+          <div className="contest-header">
+            <span className="contest-name">{c.name}</span>
+            {c.branch && <span className="tag">{c.branch}</span>}
           </div>
           {c.candidates.length > 0 && (
-            <ul className="mt-2 space-y-1 pl-4">
+            <ul className="candidate-list">
               {c.candidates.map((cand) => (
-                <li key={cand.id} className="flex items-center gap-2 text-sm">
-                  <span className="text-zinc-900 dark:text-zinc-50">{cand.fullName}</span>
+                <li key={cand.id} className="candidate-row">
+                  <span>{cand.fullName}</span>
                   {cand.partyAffiliation?.length > 0 && (
-                    <span className="text-xs text-zinc-500">({cand.partyAffiliation.join(", ")})</span>
+                    <span className="candidate-party">({cand.partyAffiliation.join(", ")})</span>
                   )}
                   {cand.contact?.campaign?.website && (
-                    <a href={cand.contact.campaign.website} target="_blank" rel="noopener noreferrer"
-                      className="text-blue-600 underline text-xs dark:text-blue-400">website</a>
+                    <a href={cand.contact.campaign.website} target="_blank" rel="noopener noreferrer" className="link-small">
+                      website
+                    </a>
                   )}
                 </li>
               ))}
@@ -235,47 +214,37 @@ function ContestsSection({ contests }: { contests: DWElection["contests"] }) {
 
 function ElectionCard({ election }: { election: DWElection }) {
   return (
-    <div className="space-y-4">
-      {/* Header */}
-      <div className="flex items-baseline justify-between">
-        <h3 className="text-lg font-semibold text-zinc-900 dark:text-zinc-50">
-          {election.description}
-        </h3>
-        <span className="rounded bg-zinc-100 px-2 py-0.5 text-xs font-medium text-zinc-600 capitalize dark:bg-zinc-800 dark:text-zinc-400">
-          {election.type}
-        </span>
+    <div className="election-inner">
+      <div className="election-header">
+        <h3 className="election-title">{election.description}</h3>
+        <span className="tag">{election.type}</span>
       </div>
-      <p className="text-sm text-zinc-600 dark:text-zinc-400">
-        Date: <span className="font-medium text-zinc-900 dark:text-zinc-50">{election.date}</span>
+      <p className="election-meta">
+        Date: <strong>{election.date}</strong>
         {election.pollingLocationUrl && (
-          <> &middot; <a href={election.pollingLocationUrl} target="_blank" rel="noopener noreferrer" className="text-blue-600 underline dark:text-blue-400">Find polling location</a></>
+          <> &middot; <a href={election.pollingLocationUrl} target="_blank" rel="noopener noreferrer">Find polling location</a></>
         )}
         {election.website && (
-          <> &middot; <a href={election.website} target="_blank" rel="noopener noreferrer" className="text-blue-600 underline dark:text-blue-400">Election website</a></>
+          <> &middot; <a href={election.website} target="_blank" rel="noopener noreferrer">Election website</a></>
         )}
       </p>
 
-      {/* Voting */}
       <Section title="Voting">
         <VotingSection election={election} />
       </Section>
 
-      {/* Registration */}
       <Section title="Registration">
         <RegistrationSection election={election} />
       </Section>
 
-      {/* Ballot Measures */}
       <Section title="What's on the Ballot — Measures">
         <BallotMeasuresSection measures={election.ballotMeasures} />
       </Section>
 
-      {/* Contests */}
       <Section title="What's on the Ballot — Contests">
         <ContestsSection contests={election.contests} />
       </Section>
 
-      {/* Q&A */}
       {election.questionAndAnswer && (
         <Section title="Voter Q&A">
           {Object.entries(election.questionAndAnswer).map(([key, qa]) => {
@@ -326,18 +295,16 @@ export default function Home() {
   }
 
   return (
-    <div className="flex flex-col flex-1 items-center bg-zinc-50 font-sans dark:bg-black">
-      <main className="flex flex-1 w-full max-w-3xl flex-col gap-8 py-16 px-6">
+    <div className="page">
+      <main className="main">
         <div>
-          <h1 className="text-3xl font-bold tracking-tight text-zinc-900 dark:text-zinc-50">
-            Election Lookup
-          </h1>
-          <p className="mt-2 text-zinc-600 dark:text-zinc-400">
+          <h1 className="page-title">Election Lookup</h1>
+          <p className="page-subtitle">
             Enter your zipcode to find upcoming elections, ballot measures, contests, and voting info.
           </p>
         </div>
 
-        <form onSubmit={handleSubmit} className="flex gap-3">
+        <form onSubmit={handleSubmit} className="search-form">
           <input
             type="text"
             inputMode="numeric"
@@ -346,55 +313,48 @@ export default function Home() {
             placeholder="e.g. 80202"
             value={zipcode}
             onChange={(e) => setZipcode(e.target.value)}
-            className="w-40 rounded-lg border border-zinc-300 bg-white px-4 py-2.5 text-zinc-900 placeholder:text-zinc-400 focus:border-blue-500 focus:outline-none focus:ring-2 focus:ring-blue-500/20 dark:border-zinc-700 dark:bg-zinc-900 dark:text-zinc-50"
+            className="search-input"
           />
           <button
             type="submit"
             disabled={loading || zipcode.length !== 5}
-            className="rounded-lg bg-blue-600 px-6 py-2.5 font-medium text-white transition-colors hover:bg-blue-700 disabled:opacity-50 disabled:cursor-not-allowed"
+            className="search-button"
           >
             {loading ? "Looking up..." : "Search"}
           </button>
         </form>
 
-        {error && (
-          <div className="rounded-lg border border-red-200 bg-red-50 p-4 text-red-800 dark:border-red-800 dark:bg-red-950 dark:text-red-200">
-            {error}
-          </div>
-        )}
+        {error && <div className="error-banner">{error}</div>}
 
         {result && (
-          <div className="flex flex-col gap-8">
-            {/* Resolved Address */}
+          <div className="results">
             <Section title="Location">
-              <p className="text-xl font-semibold text-zinc-900 dark:text-zinc-50">
+              <p className="location-line">
                 {result.address.city}, {result.address.state} {result.address.zipcode}
               </p>
               {result.address.street && (
-                <p className="mt-1 text-sm text-zinc-600 dark:text-zinc-300">
+                <p className="location-sub">
                   Resolved address: {result.address.street}
                 </p>
               )}
             </Section>
 
-            {/* Elections */}
             {result.elections.length === 0 ? (
               <Section title="Elections">
-                <p className="text-zinc-500">No upcoming elections found for this location.</p>
+                <p className="empty-text">No upcoming elections found for this location.</p>
               </Section>
             ) : (
               result.elections.map((election, i) => (
-                <div key={i} className="rounded-xl border border-zinc-200 bg-zinc-50 p-6 dark:border-zinc-700 dark:bg-zinc-950">
+                <div key={i} className="election-card">
                   <ElectionCard election={election} />
                 </div>
               ))
             )}
 
-            {/* State Authority */}
             {result.authority && (
               <Section title="State Election Authority">
-                <div className="space-y-2 text-sm text-zinc-700 dark:text-zinc-300">
-                  <p className="font-medium text-zinc-900 dark:text-zinc-50">
+                <div className="authority-body">
+                  <p className="authority-name">
                     {result.authority.officeName} — {result.authority.officialTitle}
                   </p>
                   {result.authority.contact?.phone && <p>Phone: {result.authority.contact.phone}</p>}
@@ -408,19 +368,19 @@ export default function Home() {
                     </p>
                   )}
                   {result.authority.homepageUrl && (
-                    <a href={result.authority.homepageUrl} target="_blank" rel="noopener noreferrer"
-                      className="text-blue-600 underline dark:text-blue-400">Official Website</a>
+                    <a href={result.authority.homepageUrl} target="_blank" rel="noopener noreferrer">
+                      Official Website
+                    </a>
                   )}
                 </div>
               </Section>
             )}
 
-            {/* Raw JSON (debug) */}
-            <details className="rounded-lg border border-zinc-200 bg-white p-6 dark:border-zinc-800 dark:bg-zinc-900">
-              <summary className="cursor-pointer text-sm font-semibold uppercase tracking-wider text-zinc-500 dark:text-zinc-400">
+            <details className="section">
+              <summary className="section-title" style={{ cursor: "pointer" }}>
                 Raw API Response
               </summary>
-              <pre className="mt-3 overflow-x-auto text-xs text-zinc-600 dark:text-zinc-400">
+              <pre className="raw-json">
                 {JSON.stringify(result, null, 2)}
               </pre>
             </details>

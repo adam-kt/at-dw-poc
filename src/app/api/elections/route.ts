@@ -114,7 +114,8 @@ async function fetchStateAuthority(stateCode: string) {
     return null;
   }
 
-  return res.json();
+  const data = await res.json();
+  return data?.data?.authorities?.[0] ?? null;
 }
 
 export async function POST(request: NextRequest) {

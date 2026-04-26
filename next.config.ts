@@ -1,10 +1,8 @@
 import type { NextConfig } from "next";
-import path from "node:path";
+import withFlowbiteReact from "flowbite-react/plugin/nextjs";
 
 const nextConfig: NextConfig = {
-  turbopack: {
-    root: path.resolve(process.cwd()),
-  },
+  /* config options here */
 };
 
-export default nextConfig;
+export default withFlowbiteReact(nextConfig);

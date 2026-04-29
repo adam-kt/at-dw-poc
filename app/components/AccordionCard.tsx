@@ -7,6 +7,7 @@ import {
   AccordionTitle,
 } from "flowbite-react";
 import type { ComponentProps, FC, ReactNode } from "react";
+import { Card } from "./Card";
 
 const ChevronDown: FC<ComponentProps<"svg">> = (props) => (
   <svg
@@ -35,18 +36,18 @@ const rootTheme = {
 };
 
 const titleTheme = {
-  base: "flex w-full items-center justify-between rounded-t-lg last:rounded-b-none border-b border-solid border-[#e5e7eb] bg-[#f3f4f6] px-4 py-5 text-left",
-  heading: "flex-1 text-[18px] leading-6 font-bold text-[#280c66]",
+  base: "flex w-full items-center justify-between rounded-t-lg last:rounded-b-none border-b border-solid border-row-divider bg-tile-bg px-4 py-5 text-left",
+  heading: "flex-1 text-[18px] leading-6 font-bold text-brand-purple-dark",
   open: { on: "", off: "" },
   flush: { on: "", off: "hover:bg-gray-200 focus:outline-none" },
   arrow: {
-    base: "size-3 shrink-0 text-[#280c66] transition-transform",
+    base: "size-3 shrink-0 text-brand-purple-dark transition-transform",
     open: { on: "rotate-180", off: "" },
   },
 };
 
 const contentTheme = {
-  base: "px-4 py-1.5 text-[16px] text-[#3a3a3a]",
+  base: "px-4 py-1.5 text-[16px] text-ink-700",
 };
 
 export interface AccordionItem {
@@ -68,15 +69,13 @@ export function AccordionCard({
   innerPaddingY = "py-6",
 }: AccordionCardProps) {
   return (
-    <div
-      className={`flex w-full flex-col items-center gap-4 rounded-xl border border-solid border-[#f0f0f0] bg-white px-4 ${innerPaddingY} shadow-[0px_2px_1px_rgba(0,0,0,0.15)]`}
-    >
+    <Card className={`flex flex-col items-center gap-4 px-4 ${innerPaddingY}`}>
       <div className="flex flex-col items-center gap-3 px-4 text-center">
-        <h2 className="text-[26px] leading-[1.25] font-extrabold text-[#111928]">
+        <h2 className="text-ink-900 text-[26px] leading-[1.25] font-extrabold">
           {heading}
         </h2>
         {subheading && (
-          <div className="text-[18px] leading-[1.5] font-medium text-[#3a3a3a]">
+          <div className="text-ink-700 text-[18px] leading-[1.5] font-medium">
             {subheading}
           </div>
         )}
@@ -97,6 +96,6 @@ export function AccordionCard({
           </AccordionPanel>
         ))}
       </Accordion>
-    </div>
+    </Card>
   );
 }

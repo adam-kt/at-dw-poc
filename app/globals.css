@@ -6,4 +6,19 @@
 
 @theme {
   --font-sans: var(--font-inter), ui-sans-serif, system-ui, sans-serif;
+
+  --color-ink-900: #111928;
+  --color-ink-700: #3a3a3a;
+  --color-ink-500: #6b7280;
+
+  --color-brand-purple: #6a42ea;
+  --color-brand-purple-dark: #280c66;
+
+  --color-card-border: #f0f0f0;
+  --color-row-divider: #e5e7eb;
+  --color-tile-bg: #f3f4f6;
+
+  --color-page-bg: #f9fafb;
+
+  --shadow-card: 0px 2px 1px rgba(0, 0, 0, 0.15);
 }

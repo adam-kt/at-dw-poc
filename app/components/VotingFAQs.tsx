@@ -1,10 +1,10 @@
 import { AccordionCard, type AccordionItem } from "./AccordionCard";
 
-const FAQS: AccordionItem[] = [
+const PLACEHOLDER_FAQS: AccordionItem[] = [
   {
     title: "Require Voter Identification Amendment",
     content: (
-      <div className="flex flex-col gap-3 text-[16px] leading-[1.5] text-[#3a3a3a]">
+      <div className="text-ink-700 flex flex-col gap-3 text-[16px] leading-[1.5]">
         <div>
           <p className="font-bold">Summary:</p>
           <p>
@@ -26,19 +26,24 @@ const FAQS: AccordionItem[] = [
   },
   {
     title: "Where can I access my download files?",
-    content: <p className="text-[16px] text-[#3a3a3a]">Placeholder content.</p>,
+    content: <p className="text-ink-700 text-[16px]">Placeholder content.</p>,
   },
   {
     title: "Can I use FlowBite for commercial purposes?",
-    content: <p className="text-[16px] text-[#3a3a3a]">Placeholder content.</p>,
+    content: <p className="text-ink-700 text-[16px]">Placeholder content.</p>,
   },
   {
     title: "What about browser support?",
-    content: <p className="text-[16px] text-[#3a3a3a]">Placeholder content.</p>,
+    content: <p className="text-ink-700 text-[16px]">Placeholder content.</p>,
   },
 ];
 
-export function VotingFAQs() {
+interface VotingFAQsProps {
+  items?: AccordionItem[];
+}
+
+export function VotingFAQs({ items }: VotingFAQsProps) {
+  const data = items && items.length > 0 ? items : PLACEHOLDER_FAQS;
   return (
     <AccordionCard
       heading="Voting FAQs"
@@ -49,7 +54,7 @@ export function VotingFAQs() {
           xxxxxxx
         </p>
       }
-      items={FAQS}
+      items={data}
       innerPaddingY="py-8"
     />
   );

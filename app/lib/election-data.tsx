@@ -9,11 +9,17 @@ interface ElectionTypeMeta {
   color: string;
   label: string;
   order: number;
+  isPrimary: boolean;
 }
 
 function fallbackMeta(type: string | undefined): ElectionTypeMeta {
   if (!type) {
-    return { color: "#6a42ea", label: "Election", order: 99 };
+    return {
+      color: "#6a42ea",
+      label: "Election",
+      order: 99,
+      isPrimary: false,
+    };
   }
   const formatted = type
     .split(/[-_\s]+/)
@@ -23,6 +29,7 @@ function fallbackMeta(type: string | undefined): ElectionTypeMeta {
     color: "#6a42ea",
     label: /election$/i.test(formatted) ? formatted : `${formatted} Election`,
     order: 99,
+    isPrimary: false,
   };
 }
 
@@ -43,19 +50,44 @@ export function getElectionTypeMeta(
 
   // Most-specific first (second/runoff outrank plain "primary")
   if (/(second.?primary|primary.?runoff)/.test(text)) {
-    return { color: "#9c4fff", label: "Second Primary Election", order: 4 };
+    return {
+      color: "#9c4fff",
+      label: "Second Primary Election",
+      order: 4,
+      isPrimary: true,
+    };
   }
   if (/runoff/.test(text)) {
-    return { color: "#9c4fff", label: "Runoff Election", order: 4 };
+    return {
+      color: "#9c4fff",
+      label: "Runoff Election",
+      order: 4,
+      isPrimary: false,
+    };
   }
   if (/primary/.test(text)) {
-    return { color: "#ff476c", label: "Primary Election", order: 2 };
+    return {
+      color: "#ff476c",
+      label: "Primary Election",
+      order: 2,
+      isPrimary: true,
+    };
   }
   if (/general/.test(text)) {
-    return { color: "#4a86ff", label: "General Election", order: 3 };
+    return {
+      color: "#4a86ff",
+      label: "General Election",
+      order: 3,
+      isPrimary: false,
+    };
   }
   if (/(special|constitutional)/.test(text)) {
-    return { color: "#369b99", label: "Special Election", order: 1 };
+    return {
+      color: "#369b99",
+      label: "Special Election",
+      order: 1,
+      isPrimary: false,
+    };
   }
 
   return fallbackMeta(obj.type);
@@ -67,6 +99,19 @@ export function getElectionAccent(type: string | undefined): string {
 
 export function getElectionTypeLabel(type: string | undefined): string {
   return getElectionTypeMeta(type).label;
+}
+
+// States with non-partisan / top-two / "jungle" primaries — all candidates
+// appear together regardless of party, so no party split is shown.
+const NON_PARTISAN_PRIMARY_STATES = new Set(["California", "Washington", "Alaska"]);
+
+export function shouldUsePartyAccordions(
+  election: ElectionLike,
+  state?: string,
+): boolean {
+  if (!getElectionTypeMeta(election).isPrimary) return false;
+  if (state && NON_PARTISAN_PRIMARY_STATES.has(state)) return false;
+  return true;
 }
 
 export function compareElectionsByType(
@@ -244,7 +289,7 @@ export function ballotIssuesFromDW(election: DWElection): AccordionItem[] {
 function renderHtml(html: string): ReactNode {
   return (
     <div
-      className="rich-html [&_a]:text-brand-purple [&_a]:underline [&_p]:mb-2"
+      className="text-[16px] leading-[1.5] text-ink-700 [&_a]:text-brand-purple [&_a]:underline [&_p]:mb-3 [&_p:last-child]:mb-0 [&_ul]:mb-3 [&_ul]:list-disc [&_ul]:pl-5 [&_ol]:mb-3 [&_ol]:list-decimal [&_ol]:pl-5 [&_li]:mb-1 [&_strong]:font-bold [&_em]:italic [&_h2]:mb-2 [&_h2]:text-[18px] [&_h2]:font-bold [&_h2]:text-ink-900 [&_h3]:mb-2 [&_h3]:text-[16px] [&_h3]:font-bold [&_h3]:text-ink-900"
       dangerouslySetInnerHTML={{ __html: html }}
     />
   );

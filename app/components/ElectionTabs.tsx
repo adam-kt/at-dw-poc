@@ -8,6 +8,7 @@ import {
   getElectionDateLabel,
   getElectionTypeMeta,
   racesFromDW,
+  shouldUsePartyAccordions,
 } from "../lib/election-data";
 import type { DWAuthority, DWElection } from "../types";
 import { Ballot } from "./Ballot";
@@ -128,6 +129,9 @@ export function ElectionTabs({
   };
 
   const races = activeElection ? racesFromDW(activeElection) : undefined;
+  const usePartyAccordions = activeElection
+    ? shouldUsePartyAccordions(activeElection, state)
+    : false;
   const issues = activeElection ? ballotIssuesFromDW(activeElection) : undefined;
   const faqs = activeElection
     ? faqsFromDW(activeElection, authority)
@@ -180,7 +184,7 @@ export function ElectionTabs({
         <div className="flex flex-col gap-6 md:flex-row">
           <div className="contents md:flex md:basis-3/5 md:flex-col md:gap-6">
             <div className="order-3 md:order-none">
-              <Ballot races={races} />
+              <Ballot races={races} flat={!usePartyAccordions} />
             </div>
             {issues && issues.length > 0 && (
               <div className="order-4 md:order-none">

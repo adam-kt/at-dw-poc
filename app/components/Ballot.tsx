@@ -133,12 +133,35 @@ function RaceRow({
   raceIndex,
   openSelection,
   onToggle,
+  flat,
 }: {
   race: BallotRace;
   raceIndex: number;
   openSelection: OpenSelection | null;
   onToggle: (raceIndex: number, party: PartyName) => void;
+  flat: boolean;
 }) {
+  const allCandidates = PARTIES.flatMap(
+    (p) => race.candidatesByParty.get(p.name) ?? [],
+  );
+
+  if (flat) {
+    return (
+      <div className="flex flex-col gap-2 rounded-lg border border-t border-r border-b border-l-[5px] border-solid border-[#cbcbcb] bg-white px-6 py-4">
+        <p className="text-ink-900 text-[18px] leading-[1.5] font-bold">
+          {race.name}
+        </p>
+        {allCandidates.length > 0 && (
+          <div className="mt-2 flex w-full flex-col">
+            {allCandidates.map((c) => (
+              <CandidateRow key={c.name} candidate={c} />
+            ))}
+          </div>
+        )}
+      </div>
+    );
+  }
+
   const isOpen =
     openSelection?.raceIndex === raceIndex ? openSelection.party : null;
   const visibleParties = PARTIES.filter(
@@ -175,9 +198,10 @@ function RaceRow({
 
 interface BallotProps {
   races?: BallotRace[];
+  flat?: boolean;
 }
 
-export function Ballot({ races }: BallotProps) {
+export function Ballot({ races, flat = false }: BallotProps) {
   const [openSelection, setOpenSelection] = useState<OpenSelection | null>(null);
   const data = races ?? PLACEHOLDER_RACES;
 
@@ -214,6 +238,7 @@ export function Ballot({ races }: BallotProps) {
               raceIndex={i}
               openSelection={openSelection}
               onToggle={toggle}
+              flat={flat}
             />
           ))}
         </div>

@@ -36,8 +36,8 @@ const rootTheme = {
 };
 
 const titleTheme = {
-  base: "flex w-full items-center justify-between rounded-t-lg last:rounded-b-none border-b border-solid border-row-divider bg-tile-bg px-4 py-5 text-left",
-  heading: "flex-1 text-[18px] leading-6 font-bold text-brand-purple-dark",
+  base: "flex w-full items-center justify-between rounded-t-lg last:rounded-b-none border-b border-solid border-row-divider bg-tile-bg px-3 py-3 text-left",
+  heading: "flex-1 text-[16px] leading-6 font-bold text-brand-purple-dark",
   open: { on: "", off: "" },
   flush: { on: "", off: "hover:bg-gray-200 focus:outline-none" },
   arrow: {

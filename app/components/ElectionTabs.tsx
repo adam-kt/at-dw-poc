@@ -195,9 +195,11 @@ export function ElectionTabs({
             <div className="order-2 md:order-none">
               <RegistrationDetails election={activeElection} />
             </div>
-            <div className="order-5 md:order-none">
-              <VotingFAQs items={faqs} />
-            </div>
+            {faqs && faqs.length > 0 && (
+              <div className="order-5 md:order-none">
+                <VotingFAQs items={faqs} />
+              </div>
+            )}
           </div>
         </div>
       </div>

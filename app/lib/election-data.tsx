@@ -262,23 +262,27 @@ export function ballotIssuesFromDW(election: DWElection): AccordionItem[] {
   return election.ballotMeasures.map((bm) => ({
     title: bm.streamlinedName ?? bm.ballotQuestion ?? "Ballot Measure",
     content: (
-      <div className="flex flex-col gap-3 text-[16px] leading-[1.5] text-ink-700">
+      <div className="flex flex-col gap-3">
         {bm.summary && (
           <div>
-            <p className="font-bold">Summary:</p>
-            <p>{bm.summary}</p>
+            <p className="text-ink-900 mb-1 text-[16px] font-bold">Summary:</p>
+            {renderHtml(bm.summary)}
           </div>
         )}
         {bm.yesVote && (
           <div>
-            <p className="font-bold">A &ldquo;Yes&rdquo; vote means:</p>
-            <p>{bm.yesVote}</p>
+            <p className="text-ink-900 mb-1 text-[16px] font-bold">
+              A &ldquo;Yes&rdquo; vote means:
+            </p>
+            {renderHtml(bm.yesVote)}
           </div>
         )}
         {bm.ballotQuestion && (
           <div>
-            <p className="font-bold">Ballot Question:</p>
-            <p>{bm.ballotQuestion}</p>
+            <p className="text-ink-900 mb-1 text-[16px] font-bold">
+              Ballot Question:
+            </p>
+            {renderHtml(bm.ballotQuestion)}
           </div>
         )}
       </div>
@@ -286,11 +290,26 @@ export function ballotIssuesFromDW(election: DWElection): AccordionItem[] {
   }));
 }
 
+function sanitizeHtml(html: string): string {
+  return (
+    html
+      // Lists nested inside <p> are invalid HTML; unwrap them
+      .replace(
+        /<p[^>]*>\s*(<(?:ul|ol)[\s\S]*?<\/(?:ul|ol)>)\s*<\/p>/gi,
+        "$1",
+      )
+      // Drop empty paragraphs left behind by browser fix-ups
+      .replace(/<p[^>]*>\s*<\/p>/gi, "")
+      // Collapse stray double-blanks
+      .replace(/(\s*<br\s*\/?>\s*){2,}/gi, "<br/>")
+  );
+}
+
 function renderHtml(html: string): ReactNode {
   return (
     <div
-      className="text-[16px] leading-[1.5] text-ink-700 [&_a]:text-brand-purple [&_a]:underline [&_p]:mb-3 [&_p:last-child]:mb-0 [&_ul]:mb-3 [&_ul]:list-disc [&_ul]:pl-5 [&_ol]:mb-3 [&_ol]:list-decimal [&_ol]:pl-5 [&_li]:mb-1 [&_strong]:font-bold [&_em]:italic [&_h2]:mb-2 [&_h2]:text-[18px] [&_h2]:font-bold [&_h2]:text-ink-900 [&_h3]:mb-2 [&_h3]:text-[16px] [&_h3]:font-bold [&_h3]:text-ink-900"
-      dangerouslySetInnerHTML={{ __html: html }}
+      className="text-[16px] leading-[1.5] text-ink-700 [&_a]:text-brand-purple [&_a]:underline [&_p]:mb-3 [&_p:last-child]:mb-0 [&_p:empty]:hidden [&_ul]:mb-3 [&_ul]:list-disc [&_ul]:pl-5 [&_ol]:mb-3 [&_ol]:list-decimal [&_ol]:pl-5 [&_li]:mb-1 [&_strong]:font-bold [&_em]:italic [&_h2]:mb-2 [&_h2]:text-[18px] [&_h2]:font-bold [&_h2]:text-ink-900 [&_h3]:mb-2 [&_h3]:text-[16px] [&_h3]:font-bold [&_h3]:text-ink-900"
+      dangerouslySetInnerHTML={{ __html: sanitizeHtml(html) }}
     />
   );
 }

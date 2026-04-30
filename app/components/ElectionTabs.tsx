@@ -1,6 +1,6 @@
 "use client";
 
-import { useId, useRef, useState, type KeyboardEvent } from "react";
+import { useEffect, useId, useRef, useState, type KeyboardEvent } from "react";
 import {
   ballotIssuesFromDW,
   compareElectionsByType,
@@ -18,47 +18,10 @@ import { RegistrationDetails } from "./RegistrationDetails";
 import { VotingDetails } from "./VotingDetails";
 import { VotingFAQs } from "./VotingFAQs";
 
-interface TabModel {
-  label: string;
-  electionType: string;
-  date: string;
-  accentColor: string;
-  election?: DWElection;
-}
-
-const PLACEHOLDER_TABS: TabModel[] = [
-  {
-    label: "Constitutional Amendment Special Election",
-    electionType: "Constitutional Amendment Special Election",
-    date: "September 13, 2026",
-    accentColor: "#369b99",
-  },
-  {
-    label: "Primary Election",
-    electionType: "Primary Election",
-    date: "June 16, 2026",
-    accentColor: "#ff476c",
-  },
-  {
-    label: "General Election",
-    electionType: "General Election",
-    date: "November 3, 2026",
-    accentColor: "#4a86ff",
-  },
-  {
-    label: "Second Primary Election",
-    electionType: "Second Primary Election",
-    date: "August 18, 2026",
-    accentColor: "#9c4fff",
-  },
-];
-
-const PLACEHOLDER_STATE = "Virginia";
-
 interface ElectionTabsProps {
-  elections?: DWElection[];
-  authority?: DWAuthority | null;
-  state?: string;
+  elections: DWElection[];
+  authority: DWAuthority | null;
+  state: string;
 }
 
 export function ElectionTabs({
@@ -66,43 +29,40 @@ export function ElectionTabs({
   authority,
   state,
 }: ElectionTabsProps) {
+  const sorted = [...elections].sort(compareElectionsByType);
   const [activeIndex, setActiveIndex] = useState(0);
   const idPrefix = useId();
   const tabRefs = useRef<(HTMLButtonElement | null)[]>([]);
 
+  useEffect(() => {
+    if (activeIndex >= elections.length) setActiveIndex(0);
+  }, [elections.length, activeIndex]);
+
   const stripStatePrefix = (desc: string) => {
-    if (!state) return desc.trim();
-    const lower = desc.trim().toLowerCase();
-    return lower.startsWith(state.toLowerCase())
-      ? desc.trim().slice(state.length).trim()
-      : desc.trim();
+    const trimmed = desc.trim();
+    return trimmed.toLowerCase().startsWith(state.toLowerCase())
+      ? trimmed.slice(state.length).trim()
+      : trimmed;
   };
 
-  const tabs: TabModel[] =
-    elections && elections.length > 0
-      ? [...elections].sort(compareElectionsByType).map((e) => {
-          const meta = getElectionTypeMeta(e);
-          const label = stripStatePrefix(e.description);
-          return {
-            label,
-            electionType: label,
-            date: getElectionDateLabel(e),
-            accentColor: meta.color,
-            election: e,
-          };
-        })
-      : PLACEHOLDER_TABS;
+  const tabs = sorted.map((e) => {
+    const meta = getElectionTypeMeta(e);
+    return {
+      label: stripStatePrefix(e.description),
+      date: getElectionDateLabel(e),
+      accentColor: meta.color,
+      election: e,
+    };
+  });
 
-  const displayState = state ?? PLACEHOLDER_STATE;
   const safeIndex = Math.min(activeIndex, tabs.length - 1);
   const active = tabs[safeIndex];
-  const activeElection = active.election;
   const tabId = (i: number) => `${idPrefix}-tab-${i}`;
   const panelId = (i: number) => `${idPrefix}-panel-${i}`;
 
-  const focusTab = (index: number) => {
-    setActiveIndex(index);
-    tabRefs.current[index]?.focus();
+  const focusTab = (i: number) => {
+    setActiveIndex(i);
+    tabRefs.current[i]?.focus();
   };
 
   const handleKeyDown = (e: KeyboardEvent<HTMLDivElement>) => {
@@ -128,14 +88,10 @@ export function ElectionTabs({
     }
   };
 
-  const races = activeElection ? racesFromDW(activeElection) : undefined;
-  const usePartyAccordions = activeElection
-    ? shouldUsePartyAccordions(activeElection, state)
-    : false;
-  const issues = activeElection ? ballotIssuesFromDW(activeElection) : undefined;
-  const faqs = activeElection
-    ? faqsFromDW(activeElection, authority)
-    : undefined;
+  const races = racesFromDW(active.election);
+  const usePartyAccordions = shouldUsePartyAccordions(active.election, state);
+  const issues = ballotIssuesFromDW(active.election);
+  const faqs = faqsFromDW(active.election, authority);
 
   return (
     <div className="flex flex-col gap-6">
@@ -147,7 +103,7 @@ export function ElectionTabs({
       >
         {tabs.map((t, i) => (
           <button
-            key={`${t.label}-${t.date}-${i}`}
+            key={`${t.label}-${t.date}`}
             ref={(el) => {
               tabRefs.current[i] = el;
             }}
@@ -161,7 +117,7 @@ export function ElectionTabs({
             className="flex min-h-[50px] w-full items-center justify-center rounded-lg px-5 py-2.5 text-center text-sm font-semibold text-white transition-opacity hover:opacity-90 focus:outline-none focus-visible:ring-2 focus-visible:ring-offset-2 focus-visible:ring-offset-page-bg sm:w-auto"
             style={{ backgroundColor: t.accentColor }}
           >
-            {displayState} {t.label}
+            {state} {t.label}
           </button>
         ))}
       </div>
@@ -175,8 +131,8 @@ export function ElectionTabs({
         className="flex flex-col gap-6 focus:outline-none"
       >
         <ElectionHeader
-          state={displayState}
-          electionType={active.electionType}
+          state={state}
+          electionType={active.label}
           date={active.date}
           accentColor={active.accentColor}
         />
@@ -186,7 +142,7 @@ export function ElectionTabs({
             <div className="order-3 md:order-none">
               <Ballot races={races} flat={!usePartyAccordions} />
             </div>
-            {issues && issues.length > 0 && (
+            {issues.length > 0 && (
               <div className="order-4 md:order-none">
                 <BallotIssues items={issues} />
               </div>
@@ -194,12 +150,12 @@ export function ElectionTabs({
           </div>
           <div className="contents md:flex md:basis-2/5 md:flex-col md:gap-6">
             <div className="order-1 md:order-none">
-              <VotingDetails election={activeElection} />
+              <VotingDetails election={active.election} />
             </div>
             <div className="order-2 md:order-none">
-              <RegistrationDetails election={activeElection} />
+              <RegistrationDetails election={active.election} />
             </div>
-            {faqs && faqs.length > 0 && (
+            {faqs.length > 0 && (
               <div className="order-5 md:order-none">
                 <VotingFAQs items={faqs} />
               </div>

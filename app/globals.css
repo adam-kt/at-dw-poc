@@ -22,3 +22,23 @@
 
   --shadow-card: 0px 2px 1px rgba(0, 0, 0, 0.15);
 }
+
+.dw-prose {
+  color: var(--color-ink-700);
+  font-size: 16px;
+  line-height: 1.5;
+}
+.dw-prose a { color: var(--color-brand-purple); text-decoration: underline; }
+.dw-prose p { margin-bottom: 0.75rem; }
+.dw-prose p:last-child { margin-bottom: 0; }
+.dw-prose p:empty { display: none; }
+.dw-prose ul, .dw-prose ol { margin-bottom: 0.75rem; padding-left: 1.25rem; }
+.dw-prose ul { list-style: disc; }
+.dw-prose ol { list-style: decimal; }
+.dw-prose li { margin-bottom: 0.25rem; }
+.dw-prose strong { font-weight: 700; }
+.dw-prose em { font-style: italic; }
+.dw-prose h2,
+.dw-prose h3 { margin-bottom: 0.5rem; font-weight: 700; color: var(--color-ink-900); }
+.dw-prose h2 { font-size: 18px; }
+.dw-prose h3 { font-size: 16px; }

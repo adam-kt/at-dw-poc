@@ -22,30 +22,6 @@ export interface BallotRace {
   candidatesByParty: Map<PartyName, BallotCandidate[]>;
 }
 
-const PLACEHOLDER_RACES: BallotRace[] = Array.from({ length: 7 }, (_, i) => ({
-  name: `Race ${i + 1}`,
-  candidatesByParty: new Map<PartyName, BallotCandidate[]>([
-    [
-      "Democrat",
-      ["Neil Sims", "Bonnie Green", "Micheal Gough", "Thomas Lean", "Lana Byrd"].map(
-        (name) => ({ name, partyAffiliation: "Democrat" }),
-      ),
-    ],
-    [
-      "Republican",
-      ["Neil Sims", "Bonnie Green", "Micheal Gough", "Thomas Lean", "Lana Byrd"].map(
-        (name) => ({ name, partyAffiliation: "Republican" }),
-      ),
-    ],
-    [
-      "Other",
-      ["Neil Sims", "Bonnie Green", "Micheal Gough", "Thomas Lean", "Lana Byrd"].map(
-        (name) => ({ name, partyAffiliation: "Independent" }),
-      ),
-    ],
-  ]),
-}));
-
 interface OpenSelection {
   raceIndex: number;
   party: PartyName;
@@ -197,13 +173,12 @@ function RaceRow({
 }
 
 interface BallotProps {
-  races?: BallotRace[];
+  races: BallotRace[];
   flat?: boolean;
 }
 
 export function Ballot({ races, flat = false }: BallotProps) {
   const [openSelection, setOpenSelection] = useState<OpenSelection | null>(null);
-  const data = races ?? PLACEHOLDER_RACES;
 
   const toggle = (raceIndex: number, party: PartyName) => {
     setOpenSelection((current) =>
@@ -224,14 +199,13 @@ export function Ballot({ races, flat = false }: BallotProps) {
         </p>
       </div>
 
-      {data.length === 0 ? (
+      {races.length === 0 ? (
         <p className="text-ink-500 text-sm">
-          No US Senate, US House, Governor, or State Supreme Court races on this
-          ballot.
+          No featured races on this ballot.
         </p>
       ) : (
         <div className="flex w-full flex-col gap-6">
-          {data.map((race, i) => (
+          {races.map((race, i) => (
             <RaceRow
               key={`${race.name}-${i}`}
               race={race}

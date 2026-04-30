@@ -33,26 +33,24 @@ export default function Home() {
     }
   }
 
-  const elections = data?.elections.filter(hasFeaturedRaces);
-  const authority = data?.authority;
-  const state = data?.address.state;
+  const elections = data?.elections.filter(hasFeaturedRaces) ?? [];
 
   return (
     <main className="bg-page-bg min-h-screen px-4 py-12">
       <div className="mx-auto flex w-full max-w-[1048px] flex-col gap-8">
         <ZipcodeForm onSubmit={lookup} loading={loading} error={error} />
 
-        {data && elections && elections.length === 0 && (
+        {data && elections.length === 0 && (
           <p className="text-ink-700 text-center">
             No upcoming elections found for {data.address.zipcode}.
           </p>
         )}
 
-        {data && elections && elections.length > 0 && (
+        {data && elections.length > 0 && (
           <ElectionTabs
             elections={elections}
-            authority={authority}
-            state={state}
+            authority={data.authority}
+            state={data.address.state}
           />
         )}
       </div>

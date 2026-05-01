@@ -195,7 +195,7 @@ export function Ballot({ races, flat = false }: BallotProps) {
           Who&rsquo;s on my ballot?
         </h2>
         <p className="text-ink-700 text-[18px] leading-[1.5] font-medium">
-          Choose a party&rsquo;s primary by race to view candidates.
+          Choose a ballot to view candidates.
         </p>
       </div>
 

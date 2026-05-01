@@ -22,9 +22,12 @@ export function ElectionHeader({
       >
         {state} {electionType}
       </h2>
-      <div className="border-ink-700 inline-flex items-center justify-center gap-2 rounded-md border border-solid bg-white px-3 py-2">
+      <div
+        className="inline-flex items-center justify-center gap-2 rounded-md border border-solid bg-white px-3 py-2"
+        style={{ borderColor: accentColor, color: accentColor }}
+      >
         <svg
-          className="text-ink-700 size-3"
+          className="size-3"
           xmlns="http://www.w3.org/2000/svg"
           viewBox="0 0 24 24"
           fill="currentColor"
@@ -32,7 +35,7 @@ export function ElectionHeader({
         >
           <path d="M19 4h-1V2h-2v2H8V2H6v2H5c-1.11 0-1.99.9-1.99 2L3 20a2 2 0 0 0 2 2h14c1.1 0 2-.9 2-2V6c0-1.1-.9-2-2-2zm0 16H5V10h14v10zm0-12H5V6h14v2z" />
         </svg>
-        <span className="text-ink-700 text-sm leading-[1.5] font-medium whitespace-nowrap">
+        <span className="text-sm leading-[1.5] font-bold whitespace-nowrap">
           {date}
         </span>
       </div>

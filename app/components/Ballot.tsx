@@ -11,6 +11,13 @@ const PARTIES = [
 
 export type PartyName = (typeof PARTIES)[number]["name"];
 
+function partyColor(affiliation: string): string {
+  const lower = affiliation.toLowerCase();
+  if (lower.includes("democrat")) return "#1a56db";
+  if (lower.includes("republican")) return "#ec0023";
+  return "#6a42ea";
+}
+
 export interface BallotCandidate {
   name: string;
   partyAffiliation: string;
@@ -85,7 +92,10 @@ function CandidateRow({ candidate }: { candidate: BallotCandidate }) {
           <p className="text-ink-900 text-base font-semibold whitespace-nowrap">
             {candidate.name}
           </p>
-          <p className="text-ink-500 text-xs font-medium">
+          <p
+            className="text-xs font-medium"
+            style={{ color: partyColor(candidate.partyAffiliation) }}
+          >
             {candidate.partyAffiliation}
           </p>
         </div>

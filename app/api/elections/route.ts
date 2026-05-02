@@ -19,6 +19,24 @@ const STATE_CODES: Record<string, string> = {
   WV: "West Virginia", WI: "Wisconsin", WY: "Wyoming", DC: "District of Columbia",
 };
 
+function extractContext(feature: MapboxGeocodingResponse["features"][number]) {
+  let city = "";
+  let stateCode = "";
+  let zipcode = "";
+
+  for (const ctx of feature.context ?? []) {
+    if (ctx.id.startsWith("place")) {
+      city = ctx.text;
+    } else if (ctx.id.startsWith("region")) {
+      stateCode = ctx.short_code?.replace("US-", "") ?? "";
+    } else if (ctx.id.startsWith("postcode")) {
+      zipcode = ctx.text;
+    }
+  }
+
+  return { city, stateCode: stateCode.toUpperCase(), zipcode };
+}
+
 async function geocodeZipcode(zipcode: string) {
   // Step 1: Forward geocode zipcode → get center coordinates
   const postcodeUrl = `https://api.mapbox.com/geocoding/v5/mapbox.places/${zipcode}.json?types=postcode&country=US&access_token=${MAPBOX_TOKEN}`;
@@ -36,18 +54,7 @@ async function geocodeZipcode(zipcode: string) {
 
   const postcodeFeature = postcodeData.features[0];
   const [lng, lat] = postcodeFeature.center;
-
-  let city = "";
-  let stateCode = "";
-
-  for (const ctx of postcodeFeature.context) {
-    if (ctx.id.startsWith("place")) {
-      city = ctx.text;
-    }
-    if (ctx.id.startsWith("region")) {
-      stateCode = ctx.short_code?.replace("US-", "") ?? "";
-    }
-  }
+  const { city, stateCode } = extractContext(postcodeFeature);
 
   // Step 2: Reverse geocode the coordinates → get a real street address
   const reverseUrl = `https://api.mapbox.com/geocoding/v5/mapbox.places/${lng},${lat}.json?types=address&limit=1&access_token=${MAPBOX_TOKEN}`;
@@ -66,9 +73,38 @@ async function geocodeZipcode(zipcode: string) {
 
   return {
     city,
-    stateCode: stateCode.toUpperCase(),
-    state: STATE_CODES[stateCode.toUpperCase()] ?? stateCode,
+    stateCode,
+    state: STATE_CODES[stateCode] ?? stateCode,
     streetAddress,
+    zipcode,
+  };
+}
+
+async function geocodeAddress(address: string) {
+  const encoded = encodeURIComponent(address);
+  const url = `https://api.mapbox.com/geocoding/v5/mapbox.places/${encoded}.json?types=address&country=US&limit=1&access_token=${MAPBOX_TOKEN}`;
+  const res = await fetch(url);
+
+  if (!res.ok) {
+    throw new Error(`Mapbox API error: ${res.status}`);
+  }
+
+  const data: MapboxGeocodingResponse = await res.json();
+
+  if (!data.features || data.features.length === 0) {
+    throw new Error(`No results found for address: ${address}`);
+  }
+
+  const feature = data.features[0];
+  const { city, stateCode, zipcode } = extractContext(feature);
+  const streetAddress = feature.place_name.replace(/, United States$/, "");
+
+  return {
+    city,
+    stateCode,
+    state: STATE_CODES[stateCode] ?? stateCode,
+    streetAddress,
+    zipcode,
   };
 }
 
@@ -121,11 +157,13 @@ async function fetchStateAuthority(stateCode: string) {
 export async function POST(request: NextRequest) {
   try {
     const body = await request.json();
-    const zipcode = body.zipcode?.trim();
+    const query: string = (body.query ?? body.zipcode ?? body.address ?? "")
+      .toString()
+      .trim();
 
-    if (!zipcode || !/^\d{5}$/.test(zipcode)) {
+    if (!query) {
       return NextResponse.json(
-        { error: "Please enter a valid 5-digit US zipcode." },
+        { error: "Please enter an address or 5-digit US ZIP code." },
         { status: 400 }
       );
     }
@@ -137,30 +175,39 @@ export async function POST(request: NextRequest) {
       );
     }
 
-    // Step 1: Geocode zipcode → coordinates → reverse geocode → full street address
-    const geo = await geocodeZipcode(zipcode);
+    const isZip = /^\d{5}$/.test(query);
+    const geo = isZip
+      ? await geocodeZipcode(query)
+      : await geocodeAddress(query);
 
     if (!geo.streetAddress) {
       return NextResponse.json(
-        { error: "Could not resolve a street address for this zipcode." },
+        { error: "Could not resolve a street address for this input." },
         { status: 422 }
       );
     }
 
-    // Step 2: Build a DW-friendly address (no commas, state abbreviation)
+    if (!geo.stateCode) {
+      return NextResponse.json(
+        { error: "Could not determine a US state for this input." },
+        { status: 422 }
+      );
+    }
+
+    // Build a DW-friendly address (no commas, state abbreviation)
     // Mapbox returns: "123 Main St, Denver, Colorado 80202"
     // DW expects:     "123 Main St Denver CO 80202"
-    const dwAddress = geo.streetAddress
-      .replace(/, /g, " ")
-      .replace(new RegExp(`\\b${geo.state}\\b`), geo.stateCode);
+    const dwAddress = geo.state
+      ? geo.streetAddress
+          .replace(/, /g, " ")
+          .replace(new RegExp(`\\b${geo.state}\\b`), geo.stateCode)
+      : geo.streetAddress.replace(/, /g, " ");
 
-    // Step 3: Fetch elections (using full address) + authority (using state code) in parallel
     const [allElections, authority] = await Promise.all([
       fetchElections(dwAddress),
       fetchStateAuthority(geo.stateCode),
     ]);
 
-    // Drop any election whose date has already passed.
     const today = new Date();
     today.setHours(0, 0, 0, 0);
     const elections = (allElections as Array<{ date?: string }>).filter((e) => {
@@ -174,7 +221,7 @@ export async function POST(request: NextRequest) {
         city: geo.city,
         state: geo.state,
         stateCode: geo.stateCode,
-        zipcode,
+        zipcode: geo.zipcode,
         street: geo.streetAddress,
       },
       elections,

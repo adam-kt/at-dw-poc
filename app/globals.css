@@ -39,6 +39,8 @@
 .dw-prose strong { font-weight: 700; }
 .dw-prose em { font-style: italic; }
 .dw-prose h2,
-.dw-prose h3 { margin-bottom: 0.5rem; font-weight: 700; color: var(--color-ink-900); }
+.dw-prose h3,
+.dw-prose h4 { margin-bottom: 0.5rem; font-weight: 700; color: var(--color-ink-900); }
 .dw-prose h2 { font-size: 18px; }
 .dw-prose h3 { font-size: 16px; }
+.dw-prose h4 { font-size: 16px; }

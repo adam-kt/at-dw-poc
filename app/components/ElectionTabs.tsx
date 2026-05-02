@@ -139,9 +139,11 @@ export function ElectionTabs({
 
         <div className="flex flex-col gap-6 md:flex-row">
           <div className="contents md:flex md:basis-3/5 md:flex-col md:gap-6">
-            <div className="order-3 md:order-none">
-              <Ballot races={races} flat={!usePartyAccordions} />
-            </div>
+            {races.length > 0 && (
+              <div className="order-3 md:order-none">
+                <Ballot races={races} flat={!usePartyAccordions} />
+              </div>
+            )}
             {issues.length > 0 && (
               <div className="order-4 md:order-none">
                 <BallotIssues items={issues} />

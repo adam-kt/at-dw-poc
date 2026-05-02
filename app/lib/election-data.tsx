@@ -16,6 +16,7 @@ interface ElectionTypeMeta {
   label: string;
   order: number;
   isPrimary: boolean;
+  isGeneral: boolean;
 }
 
 const FALLBACK: ElectionTypeMeta = {
@@ -23,25 +24,26 @@ const FALLBACK: ElectionTypeMeta = {
   label: "Election",
   order: 99,
   isPrimary: false,
+  isGeneral: false,
 };
 
 export function getElectionTypeMeta(election: ElectionLike): ElectionTypeMeta {
   const text = `${election.description ?? ""} ${election.type ?? ""}`.toLowerCase();
 
   if (/(second.?primary|primary.?runoff)/.test(text)) {
-    return { color: "#9c4fff", label: "Second Primary Election", order: 4, isPrimary: true };
+    return { color: "#9c4fff", label: "Second Primary Election", order: 4, isPrimary: true, isGeneral: false };
   }
   if (/runoff/.test(text)) {
-    return { color: "#9c4fff", label: "Runoff Election", order: 4, isPrimary: false };
+    return { color: "#9c4fff", label: "Runoff Election", order: 4, isPrimary: false, isGeneral: false };
   }
   if (/primary/.test(text)) {
-    return { color: "#ff476c", label: "Primary Election", order: 2, isPrimary: true };
+    return { color: "#ff476c", label: "Primary Election", order: 2, isPrimary: true, isGeneral: false };
   }
   if (/general/.test(text)) {
-    return { color: "#4a86ff", label: "General Election", order: 3, isPrimary: false };
+    return { color: "#4a86ff", label: "General Election", order: 3, isPrimary: false, isGeneral: true };
   }
   if (/(special|constitutional)/.test(text)) {
-    return { color: "#369b99", label: "Special Election", order: 1, isPrimary: false };
+    return { color: "#369b99", label: "Special Election", order: 1, isPrimary: false, isGeneral: false };
   }
   return FALLBACK;
 }
@@ -146,6 +148,11 @@ function isFeaturedRace(name: string): boolean {
 
 export function hasFeaturedRaces(election: DWElection): boolean {
   return election.contests?.some((c) => isFeaturedRace(c.name)) === true;
+}
+
+export function hasBallotContent(election: DWElection): boolean {
+  if (getElectionTypeMeta(election).isGeneral) return true;
+  return hasFeaturedRaces(election) || (election.ballotMeasures?.length ?? 0) > 0;
 }
 
 export function racesFromDW(election: DWElection): BallotRace[] {

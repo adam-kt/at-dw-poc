@@ -62,7 +62,12 @@ export function compareElectionsByType(a: ElectionLike, b: ElectionLike): number
 
 function formatDate(input: string | null | undefined, short = false): string | null {
   if (!input) return null;
-  const date = new Date(input);
+  // YYYY-MM-DD with no time: treat as local midnight, not UTC, to avoid the
+  // "shifted back a day" effect in US timezones.
+  const ymdMatch = /^(\d{4})-(\d{2})-(\d{2})$/.exec(input);
+  const date = ymdMatch
+    ? new Date(Number(ymdMatch[1]), Number(ymdMatch[2]) - 1, Number(ymdMatch[3]))
+    : new Date(input);
   if (Number.isNaN(date.getTime())) return input;
   return date.toLocaleDateString("en-US", short
     ? { month: "numeric", day: "numeric", year: "2-digit" }
@@ -84,7 +89,8 @@ export function votingRowsFromDW(election: DWElection): DetailsRow[] {
   const earlyStart = formatDate(voting.early.startDate, true);
   const earlyEnd = formatDate(voting.early.endDate, true);
   if (earlyStart && earlyEnd) {
-    rows.push({ label: "Early Voting", value: `${earlyStart} - ${earlyEnd}`, icon: PersonIcon });
+    const value = earlyStart === earlyEnd ? earlyStart : `${earlyStart} - ${earlyEnd}`;
+    rows.push({ label: "Early Voting", value, icon: PersonIcon });
   }
 
   const closing = voting.inPerson.electionDay.closing;

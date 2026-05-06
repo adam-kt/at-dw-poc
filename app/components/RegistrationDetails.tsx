@@ -5,7 +5,7 @@ import { DetailsCard } from "./DetailsCard";
 export function RegistrationDetails({ election }: { election: DWElection }) {
   return (
     <DetailsCard
-      heading="Registration Details"
+      heading="Registration Deadlines"
       rows={registrationRowsFromDW(election)}
       cta={{
         label: "Register to Vote",

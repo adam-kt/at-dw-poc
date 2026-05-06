@@ -70,7 +70,7 @@ function formatDate(input: string | null | undefined, short = false): string | n
     : new Date(input);
   if (Number.isNaN(date.getTime())) return input;
   return date.toLocaleDateString("en-US", short
-    ? { month: "numeric", day: "numeric", year: "2-digit" }
+    ? { month: "short", day: "2-digit" }
     : { month: "long", day: "numeric", year: "numeric" });
 }
 

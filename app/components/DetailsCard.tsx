@@ -39,11 +39,11 @@ const outlineColorTheme = {
 export function DetailsCard({ heading, badge, rows, cta, subheading }: DetailsCardProps) {
   return (
     <Card className="flex flex-col items-start gap-6 px-6 py-[30px]">
-      <div className="flex w-full flex-col">
-        <h2 className="text-ink-900 w-full text-[20px] leading-6 font-bold">
+      <div className="flex w-full flex-col items-center text-center">
+        <h2 className="text-ink-900 w-full text-[24px] leading-[1.25] font-extrabold">
           {heading}
         </h2>
-        {subheading && <div className="mt-6">{subheading}</div>}
+        {subheading && <div className="mt-6 text-sm">{subheading}</div>}
       </div>
 
       {badge && (

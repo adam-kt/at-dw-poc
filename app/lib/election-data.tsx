@@ -140,20 +140,38 @@ function normalizeParty(affiliations: string[] | undefined): PartyName {
   return "Other";
 }
 
-const FEATURED_RACE_PATTERNS = [
-  /^(u\.?\s*s\.?|united states)\s+senat/i,
-  /^(u\.?\s*s\.?|united states)\s+(house|repres)/i,
-  /^representative in congress/i,
-  /^governor$/i,
-  /supreme\s+court/i,
+const SUB_STATE_PATTERNS = [
+  /\bcounty\b/,
+  /\bcity\b/,
+  /\btown\b/,
+  /\bborough\b/,
+  /\bvillage\b/,
+  /\bward\b/,
+  /\bschool\s+district\b/,
+  /\bmayor\b/,
+  /\bsheriff\b/,
 ];
 
-function isFeaturedRace(name: string): boolean {
-  return FEATURED_RACE_PATTERNS.some((p) => p.test(name.trim()));
+const EXCLUDED_OFFICE_PATTERNS = [
+  /\bpresident\b/,
+  /\bvice\s+president\b/,
+  /state\s+(senate|assembly|house|legislature|representative|delegate)/,
+  /\bhouse\s+of\s+representatives\b/,
+  /\bgeneral\s+assembly\b/,
+];
+
+function isFeaturedRace(name: string, branch: string | null): boolean {
+  if (branch !== "executive" && branch !== "legislative") return false;
+  const n = name.toLowerCase();
+  if (SUB_STATE_PATTERNS.some((p) => p.test(n))) return false;
+  if (EXCLUDED_OFFICE_PATTERNS.some((p) => p.test(n))) return false;
+  return true;
 }
 
 export function hasFeaturedRaces(election: DWElection): boolean {
-  return election.contests?.some((c) => isFeaturedRace(c.name)) === true;
+  return (
+    election.contests?.some((c) => isFeaturedRace(c.name, c.branch)) === true
+  );
 }
 
 export function hasBallotContent(election: DWElection): boolean {
@@ -161,13 +179,23 @@ export function hasBallotContent(election: DWElection): boolean {
   return hasFeaturedRaces(election) || (election.ballotMeasures?.length ?? 0) > 0;
 }
 
-export function generalRacesFrom(elections: DWElection[]): BallotRace[] {
+export function generalRacesFrom(
+  general: DWElection,
+  elections: DWElection[],
+): BallotRace[] {
+  const ownRaces = racesFromDW(general);
   const primary = elections.find((e) => getElectionTypeMeta(e).isPrimary);
-  if (!primary) return [];
-  return racesFromDW(primary).map((r) => ({
-    name: r.name,
-    candidatesByParty: new Map<PartyName, BallotCandidate[]>(),
-  }));
+  if (!primary) return ownRaces;
+
+  const byName = new Map<string, BallotRace>();
+  for (const r of racesFromDW(primary)) {
+    byName.set(r.name, {
+      name: r.name,
+      candidatesByParty: new Map<PartyName, BallotCandidate[]>(),
+    });
+  }
+  for (const r of ownRaces) byName.set(r.name, r);
+  return Array.from(byName.values());
 }
 
 export function racesFromDW(election: DWElection): BallotRace[] {
@@ -175,7 +203,7 @@ export function racesFromDW(election: DWElection): BallotRace[] {
   const grouped = new Map<string, BallotRace>();
 
   for (const contest of election.contests) {
-    if (!isFeaturedRace(contest.name)) continue;
+    if (!isFeaturedRace(contest.name, contest.branch)) continue;
 
     const race = grouped.get(contest.name) ?? {
       name: contest.name,

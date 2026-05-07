@@ -37,7 +37,7 @@ const rootTheme = {
 
 const titleTheme = {
   base: "flex w-full items-center justify-between gap-6 rounded-t-lg last:rounded-b-none border-b border-solid border-row-divider bg-tile-bg px-3 py-3 text-left",
-  heading: "flex-1 text-[16px] leading-6 font-bold text-brand-purple-dark",
+  heading: "flex-1 text-[16px] leading-6 font-bold text-ink-900",
   open: { on: "", off: "" },
   flush: { on: "", off: "hover:bg-gray-200 focus:outline-none" },
   arrow: {
@@ -71,7 +71,7 @@ export function AccordionCard({
   return (
     <Card className={`flex flex-col items-center gap-4 px-4 ${innerPaddingY}`}>
       <div className="flex flex-col items-center gap-3 px-4 text-center">
-        <h2 className="text-ink-900 text-[26px] leading-[1.25] font-extrabold">
+        <h2 className="text-ink-900 text-[24px] leading-[1.25] font-extrabold">
           {heading}
         </h2>
         {subheading && (

@@ -12,7 +12,7 @@ export function StateLocalCallout({ href }: { href: string }) {
   return (
     <Card className="flex flex-col items-center gap-4 px-4 py-6">
       <div className="flex flex-col items-center gap-3 px-4 text-center">
-        <h2 className="text-ink-900 text-[26px] leading-[1.25] font-extrabold">
+        <h2 className="text-ink-900 text-[24px] leading-[1.25] font-extrabold">
           State &amp; Local Elections:
         </h2>
         <p className="text-ink-700 text-sm leading-[1.5] font-medium">
@@ -31,7 +31,7 @@ export function StateLocalCallout({ href }: { href: string }) {
         theme={solidColorTheme}
         className="text-sm font-bold"
       >
-        Website URL
+        Learn More
       </Button>
     </Card>
   );

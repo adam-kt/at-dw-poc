@@ -210,7 +210,7 @@ export function Ballot({ races, flat = false }: BallotProps) {
   return (
     <Card className="flex flex-col items-center gap-4 px-4 py-6">
       <div className="flex flex-col items-center gap-3 px-4 text-center">
-        <h2 className="text-ink-900 text-[26px] leading-[1.25] font-extrabold">
+        <h2 className="text-ink-900 text-[24px] leading-[1.25] font-extrabold">
           Who&rsquo;s on my ballot?
         </h2>
         <p className="text-ink-700 text-[18px] leading-[1.5] font-medium">

@@ -92,9 +92,9 @@ export function ElectionTabs({
 
   const isPrimary = getElectionTypeMeta(active.election).isPrimary;
   const isGeneral = getElectionTypeMeta(active.election).isGeneral;
-  const ownRaces = racesFromDW(active.election);
-  const races =
-    isGeneral && ownRaces.length === 0 ? generalRacesFrom(sorted) : ownRaces;
+  const races = isGeneral
+    ? generalRacesFrom(active.election, sorted)
+    : racesFromDW(active.election);
   const usePartyAccordions = shouldUsePartyAccordions(active.election, state);
   const issues = ballotIssuesFromDW(active.election);
   const faqs = faqsFromDW(active.election, authority);

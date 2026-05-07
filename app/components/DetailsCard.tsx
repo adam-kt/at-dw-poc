@@ -1,5 +1,5 @@
 import { Badge, Button } from "flowbite-react";
-import type { ComponentProps, FC } from "react";
+import type { ComponentProps, FC, ReactNode } from "react";
 import { Card } from "./Card";
 
 export interface DetailsRow {
@@ -19,6 +19,7 @@ interface DetailsCardProps {
   badge?: string;
   rows: DetailsRow[];
   cta: DetailsCardCTA;
+  subheading?: ReactNode;
 }
 
 const solidColorTheme = {
@@ -35,12 +36,15 @@ const outlineColorTheme = {
   },
 };
 
-export function DetailsCard({ heading, badge, rows, cta }: DetailsCardProps) {
+export function DetailsCard({ heading, badge, rows, cta, subheading }: DetailsCardProps) {
   return (
     <Card className="flex flex-col items-start gap-6 px-6 py-[30px]">
-      <h2 className="text-ink-900 w-full text-[20px] leading-6 font-bold">
-        {heading}
-      </h2>
+      <div className="flex w-full flex-col">
+        <h2 className="text-ink-900 w-full text-[20px] leading-6 font-bold">
+          {heading}
+        </h2>
+        {subheading && <div className="mt-6">{subheading}</div>}
+      </div>
 
       {badge && (
         <Badge color="success" size="sm">

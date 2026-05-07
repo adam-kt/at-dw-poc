@@ -70,7 +70,7 @@ function PartyTag({
       type="button"
       onClick={onClick}
       aria-expanded={open}
-      className="inline-flex min-w-0 shrink items-center gap-1.5 rounded border border-solid bg-white pr-1.5 pl-2 transition-opacity hover:opacity-80 sm:gap-2"
+      className="inline-flex min-w-0 shrink items-center gap-1.5 rounded border-[1.5px] border-solid bg-white pr-1.5 pl-2 transition-opacity hover:opacity-80 sm:gap-2"
       style={{ borderColor: color }}
     >
       <span
@@ -137,11 +137,20 @@ function RaceRow({
         <p className="text-ink-900 text-[18px] leading-[1.5] font-bold">
           {race.name}
         </p>
-        {allCandidates.length > 0 && (
+        {allCandidates.length > 0 ? (
           <div className="mt-2 flex w-full flex-col">
             {allCandidates.map((c) => (
               <CandidateRow key={c.name} candidate={c} />
             ))}
+          </div>
+        ) : (
+          <div className="mt-2 flex flex-col gap-1">
+            <p className="text-ink-900 text-sm leading-[1.5] font-bold">
+              No candidates available yet.
+            </p>
+            <p className="text-ink-700 text-sm leading-[1.5]">
+              Please visit your primary elections for more information.
+            </p>
           </div>
         )}
       </div>
@@ -205,7 +214,7 @@ export function Ballot({ races, flat = false }: BallotProps) {
           Who&rsquo;s on my ballot?
         </h2>
         <p className="text-ink-700 text-[18px] leading-[1.5] font-medium">
-          Choose a ballot to view candidates.
+          View candidates for each race below.
         </p>
       </div>
 

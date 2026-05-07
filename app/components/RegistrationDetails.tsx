@@ -12,6 +12,14 @@ export function RegistrationDetails({ election }: { election: DWElection }) {
         href: election.registration.online.url ?? "#",
         variant: "solid",
       }}
+      subheading={
+        <a
+          href="#voting-faqs"
+          className="text-ink-900 text-sm font-bold underline"
+        >
+          Visit FAQs below for additional information &raquo;
+        </a>
+      }
     />
   );
 }

@@ -161,6 +161,15 @@ export function hasBallotContent(election: DWElection): boolean {
   return hasFeaturedRaces(election) || (election.ballotMeasures?.length ?? 0) > 0;
 }
 
+export function generalRacesFrom(elections: DWElection[]): BallotRace[] {
+  const primary = elections.find((e) => getElectionTypeMeta(e).isPrimary);
+  if (!primary) return [];
+  return racesFromDW(primary).map((r) => ({
+    name: r.name,
+    candidatesByParty: new Map<PartyName, BallotCandidate[]>(),
+  }));
+}
+
 export function racesFromDW(election: DWElection): BallotRace[] {
   if (!election.contests) return [];
   const grouped = new Map<string, BallotRace>();

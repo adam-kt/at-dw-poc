@@ -5,6 +5,7 @@ import {
   ballotIssuesFromDW,
   compareElectionsByType,
   faqsFromDW,
+  generalRacesFrom,
   getElectionDateLabel,
   getElectionTypeMeta,
   racesFromDW,
@@ -15,6 +16,7 @@ import { Ballot } from "./Ballot";
 import { BallotIssues } from "./BallotIssues";
 import { ElectionHeader } from "./ElectionHeader";
 import { RegistrationDetails } from "./RegistrationDetails";
+import { StateLocalCallout } from "./StateLocalCallout";
 import { VotingDetails } from "./VotingDetails";
 import { VotingFAQs } from "./VotingFAQs";
 
@@ -88,10 +90,15 @@ export function ElectionTabs({
     }
   };
 
-  const races = racesFromDW(active.election);
+  const isPrimary = getElectionTypeMeta(active.election).isPrimary;
+  const isGeneral = getElectionTypeMeta(active.election).isGeneral;
+  const ownRaces = racesFromDW(active.election);
+  const races =
+    isGeneral && ownRaces.length === 0 ? generalRacesFrom(sorted) : ownRaces;
   const usePartyAccordions = shouldUsePartyAccordions(active.election, state);
   const issues = ballotIssuesFromDW(active.election);
   const faqs = faqsFromDW(active.election, authority);
+  const stateAuthorityUrl = authority?.homepageUrl ?? null;
 
   return (
     <div className="flex flex-col gap-6">
@@ -149,6 +156,16 @@ export function ElectionTabs({
                 <BallotIssues items={issues} />
               </div>
             )}
+            {isPrimary && stateAuthorityUrl && (
+              <div className="order-5 md:order-none">
+                <StateLocalCallout href={stateAuthorityUrl} />
+              </div>
+            )}
+            {faqs.length > 0 && (
+              <div id="voting-faqs" className="order-6 md:order-none scroll-mt-6">
+                <VotingFAQs items={faqs} />
+              </div>
+            )}
           </div>
           <div className="contents md:flex md:basis-2/5 md:flex-col md:gap-6">
             <div className="order-1 md:order-none">
@@ -157,11 +174,6 @@ export function ElectionTabs({
             <div className="order-2 md:order-none">
               <RegistrationDetails election={active.election} />
             </div>
-            {faqs.length > 0 && (
-              <div className="order-5 md:order-none">
-                <VotingFAQs items={faqs} />
-              </div>
-            )}
           </div>
         </div>
       </div>
